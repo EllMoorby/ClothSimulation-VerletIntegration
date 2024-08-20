@@ -5,8 +5,8 @@
 int main()
 {
 
-    Application test(500,500,60);
-    test.start();
+    Application app;
+    app.start();
 
     return 0;
 }
