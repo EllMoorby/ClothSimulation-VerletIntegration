@@ -2,6 +2,15 @@
 #include "settings.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
+
+struct Link {
+	int p1Index;
+	int p2Index;
+	float restingDistance;
+	float tearDistance;
+	float stiffness;
+};
+
 class PointMass
 {
 private:
@@ -11,17 +20,16 @@ private:
 	sf::Vector2f nextPosition;
 	sf::Vector2f acceleration;
 	sf::Vector2f pinPosition;
+	std::vector<Link> currentLinks;
+	std::vector<PointMass> currentPoints;
 	bool pinned;
 
 public:
 	PointMass();
 	sf::Vector2f position;
-
 	void createPoint(float x, float y, unsigned int radius, bool pinned);
-	void update(sf::RenderWindow& window);
+	void update(sf::RenderWindow& window, std::vector<Link>& links, std::vector<PointMass>& points);
 	void updateRender();
-	void solveConstraints();
-	void setPosition(sf::Vector2f pos);
-	void test();
+	void solveConstraints(std::vector<Link>& links, std::vector<PointMass>& points);
 };
 

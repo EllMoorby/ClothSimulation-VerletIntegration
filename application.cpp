@@ -35,7 +35,7 @@ void Application::generatePoints(unsigned int numPoints) {
 	points.push_back(p2);
 	points.push_back(p3);
 
-	Link p1p2(points[0], points[1], 150.f, 10.f, 0.f);
+	Link p1p2{0, 1, 150.f, 150.f, 0.f };
 	//Link p2p3(points[1], points[2], 150.f, 10.f, 0.f);
 
 	links.push_back(p1p2);
@@ -86,12 +86,9 @@ void Application::update() {
 	leftOverTime = elapsedTime - timesteps * 16;
 	for (int i = 0; i < timesteps; i++) {
 		for (PointMass& point : points) {
-			point.update(window);
-			
+			point.update(window,links,points);
 		}
-		for (Link& link : links) {
-			link.solve();
-		}
+		
 		
 		window.display();
 		window.clear();

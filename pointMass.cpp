@@ -15,7 +15,7 @@ void PointMass::createPoint(float x, float y, unsigned int radius, bool pinned) 
 	updateRender();
 }
 
-void PointMass::update(sf::RenderWindow& window) {
+void PointMass::update(sf::RenderWindow& window, std::vector<Link>& links, std::vector<PointMass>& points) {
 	velocity = position - lastPosition;
 	velocity.x *= 0.99;
 	velocity.y *= 0.99;
@@ -27,25 +27,48 @@ void PointMass::update(sf::RenderWindow& window) {
 	
 	position = nextPosition;
 		// solve constraints, look for collisions, etc.
-	solveConstraints();
+	solveConstraints(links, points);
 	
 	updateRender();
 	window.draw(body);
 }
 
-void PointMass::solveConstraints() {
+void PointMass::solveConstraints(std::vector<Link>& links, std::vector<PointMass>& points) {
+
+	for (Link& link : links) {
+		sf::Vector2f difference = points[link.p1Index].position - points[link.p2Index].position;
+
+		float distance = sqrt(difference.x * difference.x + difference.y * difference.y);
+
+		// difference scalar
+
+		float differenceScalar = (link.restingDistance - distance) / distance;
+
+		// translation for each PointMass. They'll be pushed 1/2 the required distance to match their resting distances.
+
+		float translateX = difference.x * 0.1 * differenceScalar;
+		float translateY = difference.y * 0.1 * differenceScalar;
+
+		points[link.p1Index].position.x += translateX;
+		points[link.p1Index].position.y += translateY;
+		points[link.p2Index].position.x -= translateX;
+		points[link.p2Index].position.y -= translateY;
+	}
+	
+
+
 
 	if (position.x < 1) {
-		position.x = 2 * (1) - position.x;
+		position.x = lastPosition.x;
 	}
 	if (position.y < 1) {
-		position.y = 2 * (1) - position.y;
+		position.y = lastPosition.y;
 	}
 	if (position.x > Settings::ScreenWidth - 1) {
-		position.x = 2 * (Settings::ScreenWidth - 1) - position.x;
+		position.x = lastPosition.x;
 	}
 	if (position.y > Settings::ScreenHeight - 1) {
-		position.y = 2 * (Settings::ScreenHeight - 1) - position.y;
+		position.y = lastPosition.y;
 	}
 
 	if (pinned) {
@@ -53,14 +76,8 @@ void PointMass::solveConstraints() {
 	}
 }
 
-void PointMass::setPosition(sf::Vector2f pos) {
-	position = pos;
-}
-
 void PointMass::updateRender() {
 	body.setPosition(position - sf::Vector2f(body.getRadius(), body.getRadius()));
 }
 
-void PointMass::test() {
-	body.setFillColor(sf::Color::Blue);
-}
+
